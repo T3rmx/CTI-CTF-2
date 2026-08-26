@@ -1,0 +1,25 @@
+services:
+  t3rmx:
+    build:
+      context: .
+      dockerfile: target/Dockerfile
+    container_name: t3rmx-ctf
+    hostname: t3rmx
+    ports:
+      - "${CTF_HTTP_PORT:-8080}:80"
+      - "${CTF_SSH_PORT:-2222}:22"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - t3rmx_ctf
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:80/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+networks:
+  t3rmx_ctf:
+    driver: bridge

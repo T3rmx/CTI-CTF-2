@@ -1,0 +1,11 @@
+# Robots exclusion - internal admin paths
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /uploads/
+Disallow: /app/
+
+# Old endpoints (deprecated but still accessible)
+# Disallow: /internal/
+# Disallow: /debug/
+# Disallow: /backup/

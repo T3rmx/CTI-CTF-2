@@ -1,0 +1,10 @@
+# File upload security - block executable files
+# T3rmx Portal - Upload Directory Protection
+# Blocks PHP execution in the uploads directory
+<Files "\.php">
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Prevent directory listing
+Options -Indexes

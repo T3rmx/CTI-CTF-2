@@ -1,0 +1,29 @@
+# Database
+*.sqlite3
+*.sqlite3-journal
+
+# Runtime state
+web/uploads/*
+!web/uploads/.htaccess
+!web/uploads/.gitkeep
+
+# Environment
+.env
+target/config/.env.runtime
+
+# Flags
+flags/
+
+# Sessions
+web/app/sessions/
+
+# Logs
+*.log
+
+# Python
+verifier/__pycache__/
+verifier/*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
