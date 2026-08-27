@@ -37,6 +37,7 @@ test_check "Home page loads" curl -sf "http://127.0.0.1:$HTTP_PORT/" >/dev/null
 test_check "Login page loads" curl -sf "http://127.0.0.1:$HTTP_PORT/login" >/dev/null
 test_check "About page loads" curl -sf "http://127.0.0.1:$HTTP_PORT/about" >/dev/null
 test_check "robots.txt accessible" curl -sf "http://127.0.0.1:$HTTP_PORT/robots.txt" >/dev/null
+test_check "Verify page loads" curl -sf "http://127.0.0.1:$HTTP_PORT/verify" >/dev/null
 
 echo ""
 echo "[3] Database Tests"
@@ -52,7 +53,9 @@ echo ""
 echo "[5] File System Tests"
 test_check ".env file exists" docker exec t3rmx-ctf test -f /var/www/app/.env
 test_check "Developer key exists" docker exec t3rmx-ctf test -f /var/www/app/developer_key
-test_check "Upload directory writable" docker exec t3rmx-ctf test -w /var/www/uploads
+test_check "Upload directory writable" docker exec t3rmx-ctf test -w /var/www/public/uploads
+test_check "Uploads run through PHP handler" docker exec t3rmx-ctf grep -q "SetHandler application/x-httpd-php" /var/www/public/uploads/.htaccess
+test_check "Verifier data readable by web" docker exec t3rmx-ctf test -r /opt/t3rmx/verifier/flags.json
 test_check "777 path exists" docker exec t3rmx-ctf test -d /opt/t3rmx/services/maintenance/runtime/scripts
 test_check "777 permission set" docker exec t3rmx-ctf stat -c "%a" /opt/t3rmx/services/maintenance/runtime/scripts | grep -q "777"
 test_check "Maintenance cron exists" docker exec t3rmx-ctf test -f /etc/cron.d/t3rmx-maintenance

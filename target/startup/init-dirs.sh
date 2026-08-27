@@ -9,7 +9,7 @@ mkdir -p /var/www/templates
 mkdir -p /var/www/static/css
 mkdir -p /var/www/static/js
 mkdir -p /var/www/static/images
-mkdir -p /var/www/uploads
+mkdir -p /var/www/public/uploads
 mkdir -p /var/www/app/sessions
 
 # Developer home

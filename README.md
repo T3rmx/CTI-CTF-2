@@ -27,6 +27,11 @@ Gain root access and retrieve all flags:
 CTF_HTTP_PORT=8888 CTF_SSH_PORT=2200 docker compose up -d
 ```
 
+## Documentation
+
+- [`docs/CHALLENGE.md`](docs/CHALLENGE.md) — full challenge spec: architecture, vulnerabilities, flags, deployment & build gotchas
+- [`docs/SOLUTION.md`](docs/SOLUTION.md) — step-by-step answer guide for the team (SQLi → RCE → developer → laour → root)
+
 ## Reset
 
 ```bash

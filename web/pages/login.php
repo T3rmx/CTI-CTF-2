@@ -1,22 +1,27 @@
 <?php
 if (isLoggedIn()) {
-    header('Location: /dashboard');
+    header('Location: ' . ($_SESSION['role'] === 'admin' ? '/admin' : '/dashboard'));
     exit;
 }
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
 
-    if (login($username, $password)) {
-        header('Location: /dashboard');
-        exit;
-    } else {
-        $error = 'Invalid username or password';
+        $result = login($username, $password);
+        if ($result === 'ok') {
+            $role = $_SESSION['role'] ?? 'user';
+            session_write_close();
+            header('Location: ' . ($role === 'admin' ? '/admin' : '/dashboard'));
+            exit;
+        } elseif ($result === 'multiple') {
+            $error = 'Multiple accounts matched this login. Access denied for security reasons.';
+        } else {
+            $error = 'Invalid username or password';
+        }
     }
-}
 
 require BASE_PATH . '/templates/layout.php';
 $content = ob_start();

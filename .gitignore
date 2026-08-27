@@ -3,9 +3,9 @@
 *.sqlite3-journal
 
 # Runtime state
-web/uploads/*
-!web/uploads/.htaccess
-!web/uploads/.gitkeep
+web/public/uploads/*
+!web/public/uploads/.htaccess
+!web/public/uploads/.gitkeep
 
 # Environment
 .env

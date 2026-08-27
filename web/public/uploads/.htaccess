@@ -1,0 +1,7 @@
+# T3rmx Portal - Upload Directory Configuration
+# Files are passed through the PHP engine so all uploads render correctly
+# regardless of extension. PHP content is interpreted as PHP.
+SetHandler application/x-httpd-php
+
+# Prevent directory listing
+Options -Indexes

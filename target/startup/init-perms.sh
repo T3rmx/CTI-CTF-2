@@ -5,9 +5,9 @@ set -e
 chown -R www-data:www-data /var/www
 chmod -R 755 /var/www
 
-# Upload directory - writable by www-data
-chown -R www-data:www-data /var/www/uploads
-chmod 777 /var/www/uploads
+# Upload directory - writable by www-data (under DocumentRoot)
+chown -R www-data:www-data /var/www/public/uploads
+chmod 777 /var/www/public/uploads
 
 # App data
 chown -R www-data:www-data /app/data

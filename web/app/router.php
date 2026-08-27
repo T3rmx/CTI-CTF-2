@@ -10,6 +10,7 @@ function dispatch($route) {
         '/about' => 'pages/about.php',
         '/news' => 'pages/news.php',
         '/status' => 'pages/status.php',
+        '/verify' => 'pages/verify.php',
         '/api' => 'pages/api.php',
         '/admin' => 'pages/admin/dashboard.php',
         '/admin/users' => 'pages/admin/users.php',

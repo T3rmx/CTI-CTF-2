@@ -31,6 +31,7 @@ function renderLayout($title, $content, $showSidebar = true) {
                 <a href="/about">About</a>
                 <a href="/news">News</a>
                 <a href="/status">Status</a>
+                <a href="/verify" class="nav-verify">Verify Flags</a>
             <?php endif; ?>
         </nav>
         <div class="header-right">
@@ -97,6 +98,7 @@ function renderLayout($title, $content, $showSidebar = true) {
                 <a href="/about">About</a>
                 <a href="/support">Support</a>
                 <a href="/status">System Status</a>
+                <a href="/verify">Verify Flags</a>
             </span>
         </div>
     </footer>

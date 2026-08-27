@@ -37,8 +37,9 @@ EOF
 
 chmod 600 "$FLAG_DIR/flags.json"
 
-# Also save for verifier
+# Also save for verifier (and the web verify page) - readable copy
 mkdir -p /opt/t3rmx/verifier
 cp "$FLAG_DIR/flags.json" /opt/t3rmx/verifier/flags.json
+chmod 644 /opt/t3rmx/verifier/flags.json
 
 echo "[+] Flags generated and verification values created"

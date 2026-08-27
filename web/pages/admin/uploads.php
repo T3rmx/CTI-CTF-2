@@ -7,7 +7,7 @@ $message = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_FILES['file'])) {
+    if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
         $file = $_FILES['file'];
         $originalName = $file['name'];
         $mimeType = $file['type'];
@@ -15,24 +15,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Intentionally flawed validation:
         // Checks MIME type from request (client-controlled) instead of file content
-        // Also has a bypass: doesn't properly check file extension
         $allowedMimeTypes = ['image/png', 'image/jpeg', 'application/pdf'];
 
-        // The flaw: we check the MIME type sent by the browser, but don't verify
-        // the actual file content. Also, we don't block PHP files properly.
-        // The .htaccess in uploads/ is supposed to block PHP but it's misconfigured.
         if (in_array($mimeType, $allowedMimeTypes)) {
-            // Generate unique filename but preserve original extension
-            $ext = pathinfo($originalName, PATHINFO_EXTENSION);
-            $filename = uniqid('upload_', true) . '.' . $ext;
-            $uploadPath = BASE_PATH . '/uploads/' . $filename;
+            $filename = basename($originalName);
+            $uploadPath = PUBLIC_PATH . '/uploads/' . $filename;
 
             if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-                $db->query("INSERT INTO uploads (filename, original_name, mime_type, size, uploader_id) VALUES (:fn, :on, :mt, :sz, :uid)",
-                    [':fn' => $filename, ':on' => $originalName, ':mt' => $mimeType, ':sz' => $size, ':uid' => $user['id']]);
+                try {
+                    $db->query("INSERT INTO uploads (filename, original_name, mime_type, size, uploader_id) VALUES (:fn, :on, :mt, :sz, :uid)",
+                        [':fn' => $filename, ':on' => $originalName, ':mt' => $mimeType, ':sz' => $size, ':uid' => $user['id']]);
 
-                $db->query("INSERT INTO audit_logs (user_id, action, details, ip_address) VALUES (:uid, 'upload', :details, :ip)",
-                    [':uid' => $user['id'], ':details' => "Uploaded: $originalName", ':ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown']);
+                    $db->query("INSERT INTO audit_logs (user_id, action, details, ip_address) VALUES (:uid, 'upload', :details, :ip)",
+                        [':uid' => $user['id'], ':details' => "Uploaded: $originalName", ':ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown']);
+                } catch (Exception $e) {
+                    // File saved but DB insert failed
+                }
 
                 $message = "File uploaded successfully: $filename";
             } else {
@@ -41,10 +39,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $error = "File type not allowed. Accepted: PNG, JPG, PDF";
         }
+    } else {
+        $error = "No file uploaded or upload error";
     }
 }
 
-$uploads = $db->fetchAll("SELECT u.*, usr.full_name as uploader FROM uploads u LEFT JOIN users usr ON u.uploader_id = usr.id ORDER BY u.created_at DESC");
+try {
+    $uploads = $db->fetchAll("SELECT u.*, usr.full_name as uploader FROM uploads u LEFT JOIN users usr ON u.uploader_id = usr.id ORDER BY u.created_at DESC");
+} catch (Exception $e) {
+    $uploads = [];
+}
 
 require BASE_PATH . '/templates/layout.php';
 $content = ob_start();
@@ -82,32 +86,47 @@ $content = ob_start();
         <h3>Uploaded Files</h3>
     </div>
     <div class="card-body">
+        <?php if (empty($uploads)): ?>
+        <p class="text-muted">No files uploaded yet.</p>
+        <?php else: ?>
         <table class="table">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Preview</th>
                     <th>Filename</th>
-                    <th>Original Name</th>
                     <th>Type</th>
                     <th>Size</th>
                     <th>Uploaded By</th>
                     <th>Date</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($uploads as $upload): ?>
+                <?php foreach ($uploads as $upload):
+                    $isImage = in_array($upload['mime_type'], ['image/png', 'image/jpeg', 'image/jpg']) || in_array(strtolower(pathinfo($upload['filename'], PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg']);
+                    $fileUrl = '/uploads/' . urlencode($upload['filename']);
+                ?>
                 <tr>
-                    <td><?= $upload['id'] ?></td>
-                    <td><a href="/uploads/<?= htmlspecialchars($upload['filename']) ?>"><?= htmlspecialchars($upload['filename']) ?></a></td>
-                    <td><?= htmlspecialchars($upload['original_name']) ?></td>
+                    <td>
+                        <?php if ($isImage): ?>
+                        <a href="<?= $fileUrl ?>" target="_blank">
+                            <img src="<?= $fileUrl ?>" alt="<?= htmlspecialchars($upload['original_name']) ?>" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">
+                        </a>
+                        <?php else: ?>
+                        <span style="display:inline-block;width:48px;height:48px;line-height:48px;text-align:center;background:var(--bg);border-radius:4px;">PDF</span>
+                        <?php endif; ?>
+                    </td>
+                    <td><a href="<?= $fileUrl ?>" target="_blank" title="Open file"><?= htmlspecialchars($upload['original_name']) ?></a></td>
                     <td><?= htmlspecialchars($upload['mime_type']) ?></td>
                     <td><?= number_format($upload['size']) ?> bytes</td>
                     <td><?= htmlspecialchars($upload['uploader'] ?? 'Unknown') ?></td>
                     <td><?= htmlspecialchars($upload['created_at']) ?></td>
+                    <td><a href="<?= $fileUrl ?>" target="_blank" class="btn btn-sm btn-primary">Open</a></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
+        <?php endif; ?>
     </div>
 </div>
 <?php
