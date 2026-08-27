@@ -48,6 +48,8 @@ echo ""
 echo "[4] User Tests"
 test_check "developer user exists" docker exec t3rmx-ctf id developer
 test_check "laour user exists" docker exec t3rmx-ctf id laour
+test_check "developer SSH key login works" docker exec t3rmx-ctf bash -c "ssh -i /var/www/app/developer_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 developer@127.0.0.1 'echo ok' | grep -q ok"
+test_check "sshd is running" docker exec t3rmx-ctf pgrep -x sshd
 
 echo ""
 echo "[5] File System Tests"
@@ -56,6 +58,16 @@ test_check "Developer key exists" docker exec t3rmx-ctf test -f /var/www/app/dev
 test_check "Upload directory writable" docker exec t3rmx-ctf test -w /var/www/public/uploads
 test_check "Uploads run through PHP handler" docker exec t3rmx-ctf grep -q "SetHandler application/x-httpd-php" /var/www/public/uploads/.htaccess
 test_check "Verifier data readable by web" docker exec t3rmx-ctf test -r /opt/t3rmx/verifier/flags.json
+
+echo ""
+echo "[6] Team Tooling Tests"
+test_check "curl installed" docker exec t3rmx-ctf command -v curl
+test_check "wget installed" docker exec t3rmx-ctf command -v wget
+test_check "nc (netcat) installed" docker exec t3rmx-ctf command -v nc
+test_check "nmap installed" docker exec t3rmx-ctf command -v nmap
+test_check "socat installed" docker exec t3rmx-ctf command -v socat
+test_check "tree installed" docker exec t3rmx-ctf command -v tree
+test_check "gcc installed" docker exec t3rmx-ctf command -v gcc
 test_check "777 path exists" docker exec t3rmx-ctf test -d /opt/t3rmx/services/maintenance/runtime/scripts
 test_check "777 permission set" docker exec t3rmx-ctf stat -c "%a" /opt/t3rmx/services/maintenance/runtime/scripts | grep -q "777"
 test_check "Maintenance cron exists" docker exec t3rmx-ctf test -f /etc/cron.d/t3rmx-maintenance

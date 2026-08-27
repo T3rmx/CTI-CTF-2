@@ -36,8 +36,8 @@ echo "[*] Step 5: Generating flags..."
 echo "[*] Step 6: Configuring environment..."
 /opt/t3rmx/startup/init-env.sh
 
-echo "[*] Step 7: Starting SSH..."
-service ssh start
+echo "[*] Step 7: Setting up SSH keys and starting SSH..."
+/opt/t3rmx/startup/init-ssh.sh
 
 echo "[*] Step 8: Starting Apache..."
 service apache2 start

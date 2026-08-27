@@ -10,14 +10,41 @@ RUN apt-get update && apt-get install -y \
     php-cli \
     sqlite3 \
     openssh-server \
+    openssh-client \
     curl \
+    wget \
     net-tools \
     iputils-ping \
+    iproute2 \
+    dnsutils \
     procps \
     cron \
     sudo \
+    vim \
+    nano \
+    tree \
+    htop \
+    netcat-openbsd \
+    socat \
+    tcpdump \
+    nmap \
+    git \
     python3 \
+    python3-pip \
+    ca-certificates \
+    gcc \
+    gdb \
+    make \
+    strace \
+    ltrace \
+    file \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
+
+# Team tooling: pre-seed common privesc helper (skip silently if no network at build)
+RUN mkdir -p /opt/t3rmx/tools \
+    && (curl -fsSL https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh -o /opt/t3rmx/tools/linpeas.sh || true) \
+    && (chmod +x /opt/t3rmx/tools/linpeas.sh || true)
 
 RUN a2enmod rewrite headers
 

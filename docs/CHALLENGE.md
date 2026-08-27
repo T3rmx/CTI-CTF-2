@@ -19,6 +19,14 @@ One container (`t3rmx-ctf`) based on `debian:bookworm-slim` runs everything:
 - Container is DRY-RUN: **no volumes**. Every full rebuild regenerates passwords
   and flags. `docker compose down -v && up` = full reset.
 
+### Pre-installed team tooling
+
+`curl`, `wget`, `nc` (netcat-openbsd), `nmap`, `socat`, `tcpdump`, `git`, `gcc`,
+`gdb`, `make`, `strace`, `ltrace`, `python3` + `pip`, `vim`, `nano`, `tree`,
+`htop`, `file`, `unzip`, `ip`, `dig`/`nslookup`, `sqlite3`. A pre-seeded
+`linpeas.sh` (if network was available at build time) lives at
+`/opt/t3rmx/tools/linpeas.sh`; teams can also fetch it themselves at runtime.
+
 ### Directory layout inside the container
 
 ```

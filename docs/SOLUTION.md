@@ -143,6 +143,11 @@ ssh -i /var/www/app/developer_key developer@127.0.0.1
 
 As **developer**:
 
+> ⚠️ If you copied the key to your own machine, `ssh` refuses to use it unless it's
+> protected: `chmod 600 developer_key` first.
+> From a web-shell/container RCE you can use the key directly: it sits at
+> `/var/www/app/developer_key` owned by `www-data` (600).
+
 ```bash
 whoami                     # developer
 cat /home/developer/user.txt   # ⭐ FLAG 1  (developer)

@@ -3,12 +3,6 @@ set -e
 
 source /run/secrets.env
 
-# Generate SSH keypair for developer (placed in .env for discovery)
-mkdir -p /var/www/app
-if [ ! -f /var/www/app/developer_key ]; then
-    ssh-keygen -t ed25519 -f /var/www/app/developer_key -N "" -C "developer@t3rmx" 2>/dev/null
-fi
-
 # Create .env file with realistic configuration
 cat > /var/www/app/.env <<EOF
 APP_NAME=T3rmx Portal
@@ -52,14 +46,4 @@ EOF
 chown www-data:www-data /var/www/app/.env
 chmod 644 /var/www/app/.env
 
-chown www-data:www-data /var/www/app/developer_key
-chown www-data:www-data /var/www/app/developer_key.pub
-chmod 600 /var/www/app/developer_key
-chmod 644 /var/www/app/developer_key.pub
-
-# Configure authorized_keys for developer
-mkdir -p /home/developer/.ssh
-cp /var/www/app/developer_key.pub /home/developer/.ssh/authorized_keys
-chown -R developer:developer /home/developer/.ssh
-chmod 700 /home/developer/.ssh
-chmod 600 /home/developer/.ssh/authorized_keys
+# developer key permissions are handled by init-ssh.sh
