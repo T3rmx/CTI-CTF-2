@@ -112,8 +112,8 @@ Passwords are stored **in plaintext** — dumping them lets you log in normally.
    `www-data` (init-env.sh) → web compromise = SSH key for `developer`.
 5. **Privilege escalation (777 + cron)** — `/opt/t3rmx/services/maintenance/runtime/scripts`
    is world-writable (777). A root cron job (`/etc/cron.d/t3rmx-maintenance`,
-   `0 2 * * *`) executes `cleanup.sh` from that directory → overwrite it and wait
-   for root to run your payload.
+   `* * * * *`) executes `cleanup.sh` from that directory every minute → overwrite
+   it and wait ≤60s for root to run your payload.
 
 ### Flags
 

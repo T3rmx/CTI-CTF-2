@@ -71,6 +71,7 @@ test_check "gcc installed" docker exec t3rmx-ctf command -v gcc
 test_check "777 path exists" docker exec t3rmx-ctf test -d /opt/t3rmx/services/maintenance/runtime/scripts
 test_check "777 permission set" docker exec t3rmx-ctf stat -c "%a" /opt/t3rmx/services/maintenance/runtime/scripts | grep -q "777"
 test_check "Maintenance cron exists" docker exec t3rmx-ctf test -f /etc/cron.d/t3rmx-maintenance
+test_check "cron daemon running" docker exec t3rmx-ctf pgrep -x cron
 
 echo ""
 echo "========================================="

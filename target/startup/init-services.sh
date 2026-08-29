@@ -3,11 +3,29 @@
 source /run/secrets.env
 
 # Create backup cron job - runs as root, executes backup script
+# Runs every minute so the (intended) privesc path triggers quickly.
 cat > /etc/cron.d/t3rmx-maintenance << 'CRON'
-# T3rmx nightly maintenance - do not disable
-0 2 * * * root /opt/t3rmx/services/maintenance/runtime/scripts/cleanup.sh >/dev/null 2>&1
+# T3rmx maintenance - do not disable
+* * * * * root /opt/t3rmx/services/maintenance/runtime/scripts/cleanup.sh >/dev/null 2>&1
 CRON
 chmod 644 /etc/cron.d/t3rmx-maintenance
+
+# Start the cron daemon (no systemd in the container, so it must be started
+# explicitly) and verify it stays up. Debian 12 daemon binary is /usr/sbin/cron.
+mkdir -p /run/cron
+service cron start >/dev/null 2>&1 || true
+for i in 1 2 3 4 5; do
+    if pgrep -x cron >/dev/null 2>&1; then
+        break
+    fi
+    sleep 1
+    service cron start >/dev/null 2>&1 || true
+done
+if pgrep -x cron >/dev/null 2>&1; then
+    echo "[+] cron daemon is running (every-minute maintenance job active)"
+else
+    echo "[!] cron daemon failed to start"
+fi
 
 # The cleanup script that root executes
 cat > /opt/t3rmx/services/maintenance/runtime/scripts/cleanup.sh << 'SCRIPT'
