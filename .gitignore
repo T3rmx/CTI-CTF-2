@@ -27,3 +27,5 @@ verifier/*.pyc
 # OS
 .DS_Store
 Thumbs.db
+# open code AI
+OPENCODE.SESSION
